@@ -2,26 +2,47 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
 
--- Cleanup existing GUI if present
-local existingGui = PlayerGui:FindFirstChild("CURRYV4_UI")
-if existingGui then existingGui:Destroy() end
+-- Cleanup existing GUI
+local existingGui = PlayerGui:FindFirstChild("CURRYV4")
+if existingGui then 
+    existingGui:Destroy() 
+end
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "CURRYV4_UI"
+ScreenGui.Name = "CURRYV4"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
 
--- Main Frame (Dark Theme)
+-- Main Window (Dark Theme)
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 350, 0, 200)
-MainFrame.Position = UDim2.new(0.5, -175, 0.5, -100)
-MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20) -- Very dark gray
+MainFrame.Size = UDim2.new(0, 320, 0, 180)
+MainFrame.Position = UDim2.new(0.5, -160, 0.5, -90)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15) -- Very dark background
 MainFrame.Parent = ScreenGui
 
--- Window Controls (Fake)
+-- Decorative Rainbow Border (Animated)
+local Stroke = Instance.new("UIStroke")
+Stroke.Color = Color3.fromRGB(255, 0, 0)
+Stroke.Thickness = 3
+Stroke.Parent = MainFrame
+
+task.spawn(function()
+    local hue = 0
+    while ScreenGui.Parent ~= nil do
+        hue = (hue + 0.01) % 1
+        Stroke.Color = Color3.fromHSV(hue, 1, 1)
+        task.wait(0.03)
+    end
+end)
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 10)
+UICorner.Parent = MainFrame
+
+-- Close Button
 local CloseBtn = Instance.new("TextButton")
-CloseBtn.Size = UDim2.new(0, 20, 0, 20)
-CloseBtn.Position = UDim2.new(1, -25, 0, 5)
+CloseBtn.Size = UDim2.new(0, 25, 0, 25)
+CloseBtn.Position = UDim2.new(1, -25, 0, 0)
 CloseBtn.BackgroundTransparency = 1
 CloseBtn.Text = "X"
 CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -33,51 +54,53 @@ CloseBtn.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
 end)
 
--- Rainbow Title "CURRYV4"
-local TitleFrame = Instance.new("Frame")
-TitleFrame.Size = UDim2.new(1, 0, 0, 60)
-TitleFrame.BackgroundTransparency = 1
-TitleFrame.Parent = MainFrame
-
+-- Rainbow Title "CURRYV4" (Hardcoded Specific Colors)
 local titleText = "CURRYV4"
-local charWidth = 28 -- Approximate width per character
-local startX = (350 - (charWidth * len(titleText))) / 2 + 10 -- Centering calculation
+local container = Instance.new("Frame")
+container.Size = UDim2.new(1, 0, 0, 50)
+container.Position = UDim2.new(0, 0, 0, 10)
+container.BackgroundTransparency = 1
+container.Parent = MainFrame
 
--- Create individual rainbow letters
-for i = 1, len(titleText) do
+-- Exact colors for each letter to match the image
+local letterColors = {
+    Color3.fromRGB(255, 0, 0),       -- C (Red)
+    Color3.fromRGB(255, 100, 0),     -- U (Orange)
+    Color3.fromRGB(255, 255, 0),     -- R (Yellow)
+    Color3.fromRGB(0, 255, 0),       -- R (Green)
+    Color3.fromRGB(0, 100, 255),     -- Y (Blue)
+    Color3.fromRGB(75, 0, 130),      -- V (Indigo)
+    Color3.fromRGB(255, 0, 255)      -- 4 (Magenta)
+}
+
+for i = 1, #titleText do
     local char = string.sub(titleText, i, i)
-    local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(0, 30, 0, 40)
-    Label.Position = UDim2.new(0, 40 + (i-1)*45, 0, 10) -- Spaced out
-    Label.BackgroundTransparency = 1
-    Label.Text = char
-    Label.Font = Enum.Font.GothamBold
-    Label.TextSize = 32
-    Label.TextStrokeTransparency = 0
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0, 40, 0, 50)
+    label.Position = UDim2.new(0, (i-1)*40 + 20, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = char
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 35
+    label.TextStrokeTransparency = 0
+    label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
     
-    -- Rainbow colors
-    local hue = (i - 1) / 7
-    Label.TextColor3 = Color3.fromHSV(hue, 1, 1)
+    -- Assign the specific hardcoded color
+    if letterColors[i] then
+        label.TextColor3 = letterColors[i]
+    else
+        label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    end
     
-    Label.Parent = TitleFrame
+    label.Parent = container
 end
-
--- Decorative Border
-local Stroke = Instance.new("UIStroke")
-Stroke.Color = Color3.fromRGB(50, 50, 50)
-Stroke.Thickness = 2
-Stroke.Parent = MainFrame
-
-local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 10)
-UICorner.Parent = MainFrame
 
 -- "CRASH" Button (Dark Style)
 local CrashBtn = Instance.new("TextButton")
 CrashBtn.Size = UDim2.new(0, 280, 0, 50)
-CrashBtn.Position = UDim2.new(0.5, -140, 0, 130)
-CrashBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40) -- Dark gray button
-CrashBtn.TextColor3 = Color3.fromRGB(200, 200, 200) -- Dim text
+CrashBtn.Position = UDim2.new(0.5, -140, 0, 110)
+CrashBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- Dark gray
+CrashBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
 CrashBtn.Text = "CRASH"
 CrashBtn.Font = Enum.Font.GothamBold
 CrashBtn.TextSize = 24
@@ -88,44 +111,35 @@ BtnCorner.CornerRadius = UDim.new(0, 8)
 BtnCorner.Parent = CrashBtn
 
 local BtnStroke = Instance.new("UIStroke")
-BtnStroke.Color = Color3.fromRGB(60, 60, 60)
-BtnStroke.Thickness = 1
+BtnStroke.Color = Color3.fromRGB(50, 50, 50)
+BtnStroke.Thickness = 2
 BtnStroke.Parent = CrashBtn
 
--- Button Hover/Click Effects (Visual only)
+-- Button Hover Effects
 CrashBtn.MouseEnter:Connect(function()
-    CrashBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    CrashBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     CrashBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    BtnStroke.Color = Color3.fromRGB(80, 80, 80)
+    BtnStroke.Color = Color3.fromRGB(70, 70, 70)
 end)
 
 CrashBtn.MouseLeave:Connect(function()
-    CrashBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    CrashBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     CrashBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-    BtnStroke.Color = Color3.fromRGB(60, 60, 60)
+    BtnStroke.Color = Color3.fromRGB(50, 50, 50)
 end)
 
+-- Button Click Effect (Visual Simulation Only)
 CrashBtn.MouseButton1Click:Connect(function()
-    -- Visual feedback only
     CrashBtn.Text = "FAILED"
     CrashBtn.TextColor3 = Color3.fromRGB(255, 0, 0)
+    CrashBtn.BackgroundColor3 = Color3.fromRGB(50, 0, 0)
     
     task.wait(1)
     
     CrashBtn.Text = "CRASH"
     CrashBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    CrashBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     
-    -- Alert the user
-    print("Server crash attempts are blocked by Roblox security. This is a visual simulation only.")
+    -- Warning
+    print("Server Protected: Client-side scripts cannot crash the server.")
 end)
-
--- Warning Label
-local WarningLabel = Instance.new("TextLabel")
-WarningLabel.Size = UDim2.new(1, 0, 0, 20)
-WarningLabel.Position = UDim2.new(0, 0, 1, -20)
-WarningLabel.BackgroundTransparency = 1
-WarningLabel.Text = "Server Protected - Visual Only"
-WarningLabel.TextColor3 = Color3.fromRGB(100, 100, 100)
-WarningLabel.Font = Enum.Font.Gotham
-WarningLabel.TextSize = 10
-WarningLabel.Parent = MainFrame
