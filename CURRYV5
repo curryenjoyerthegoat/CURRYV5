@@ -1,156 +1,131 @@
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
-
 local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
 
--- --- CONFIGURATION ---
-local TEST_DURATION = 3 -- Seconds to run (Keep short to avoid immediate kick)
--- ---------------------
-
 -- Cleanup existing GUI if present
-local existingGui = PlayerGui:FindFirstChild("NetworkTest")
+local existingGui = PlayerGui:FindFirstChild("CURRYV4_UI")
 if existingGui then existingGui:Destroy() end
 
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "NetworkTest"
+ScreenGui.Name = "CURRYV4_UI"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
 
+-- Main Frame (Dark Theme)
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 320, 0, 160)
-MainFrame.Position = UDim2.new(0.5, -160, 0.5, -80)
-MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+MainFrame.Size = UDim2.new(0, 350, 0, 200)
+MainFrame.Position = UDim2.new(0.5, -175, 0.5, -100)
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20) -- Very dark gray
 MainFrame.Parent = ScreenGui
+
+-- Window Controls (Fake)
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 20, 0, 20)
+CloseBtn.Position = UDim2.new(1, -25, 0, 5)
+CloseBtn.BackgroundTransparency = 1
+CloseBtn.Text = "X"
+CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.TextSize = 14
+CloseBtn.Parent = MainFrame
+
+CloseBtn.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- Rainbow Title "CURRYV4"
+local TitleFrame = Instance.new("Frame")
+TitleFrame.Size = UDim2.new(1, 0, 0, 60)
+TitleFrame.BackgroundTransparency = 1
+TitleFrame.Parent = MainFrame
+
+local titleText = "CURRYV4"
+local charWidth = 28 -- Approximate width per character
+local startX = (350 - (charWidth * len(titleText))) / 2 + 10 -- Centering calculation
+
+-- Create individual rainbow letters
+for i = 1, len(titleText) do
+    local char = string.sub(titleText, i, i)
+    local Label = Instance.new("TextLabel")
+    Label.Size = UDim2.new(0, 30, 0, 40)
+    Label.Position = UDim2.new(0, 40 + (i-1)*45, 0, 10) -- Spaced out
+    Label.BackgroundTransparency = 1
+    Label.Text = char
+    Label.Font = Enum.Font.GothamBold
+    Label.TextSize = 32
+    Label.TextStrokeTransparency = 0
+    
+    -- Rainbow colors
+    local hue = (i - 1) / 7
+    Label.TextColor3 = Color3.fromHSV(hue, 1, 1)
+    
+    Label.Parent = TitleFrame
+end
+
+-- Decorative Border
+local Stroke = Instance.new("UIStroke")
+Stroke.Color = Color3.fromRGB(50, 50, 50)
+Stroke.Thickness = 2
+Stroke.Parent = MainFrame
 
 local UICorner = Instance.new("UICorner")
 UICorner.CornerRadius = UDim.new(0, 10)
 UICorner.Parent = MainFrame
 
-local Stroke = Instance.new("UIStroke")
-Stroke.Color = Color3.fromRGB(100, 100, 100)
-Stroke.Thickness = 2
-Stroke.Parent = MainFrame
+-- "CRASH" Button (Dark Style)
+local CrashBtn = Instance.new("TextButton")
+CrashBtn.Size = UDim2.new(0, 280, 0, 50)
+CrashBtn.Position = UDim2.new(0.5, -140, 0, 130)
+CrashBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40) -- Dark gray button
+CrashBtn.TextColor3 = Color3.fromRGB(200, 200, 200) -- Dim text
+CrashBtn.Text = "CRASH"
+CrashBtn.Font = Enum.Font.GothamBold
+CrashBtn.TextSize = 24
+CrashBtn.Parent = MainFrame
 
-local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, 0, 0, 40)
-Title.BackgroundTransparency = 1
-Title.Text = "Network Stress Test (Fix)"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 16
-Title.Parent = MainFrame
+local BtnCorner = Instance.new("UICorner")
+BtnCorner.CornerRadius = UDim.new(0, 8)
+BtnCorner.Parent = CrashBtn
 
-local StartBtn = Instance.new("TextButton")
-StartBtn.Size = UDim2.new(0, 150, 0, 40)
-StartBtn.Position = UDim2.new(0, 10, 0, 50)
-StartBtn.BackgroundColor3 = Color3.fromRGB(40, 140, 40)
-StartBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-StartBtn.Text = "Start Test"
-StartBtn.Font = Enum.Font.GothamBold
-StartBtn.TextSize = 14
-StartBtn.Parent = MainFrame
+local BtnStroke = Instance.new("UIStroke")
+BtnStroke.Color = Color3.fromRGB(60, 60, 60)
+BtnStroke.Thickness = 1
+BtnStroke.Parent = CrashBtn
 
-local StopBtn = Instance.new("TextButton")
-StopBtn.Size = UDim2.new(0, 150, 0, 40)
-StopBtn.Position = UDim2.new(0, 170, 0, 50)
-StopBtn.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
-StopBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-StopBtn.Text = "Stop" -- Fixed: Correctly assigned to StopBtn
-StopBtn.Font = Enum.Font.GothamBold
-StopBtn.TextSize = 14
-StopBtn.Parent = MainFrame
-
-local StatusLabel = Instance.new("TextLabel")
-StatusLabel.Size = UDim2.new(1, 0, 0, 30)
-StatusLabel.Position = UDim2.new(0, 0, 0, 110)
-StatusLabel.BackgroundTransparency = 1
-StatusLabel.Text = "Status: Idle"
-StatusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-StatusLabel.Font = Enum.Font.Gotham
-StatusLabel.TextSize = 12
-StatusLabel.Parent = MainFrame
-
--- --- LOGIC ---
-local isTesting = false
-local connection = nil
-
--- NOTE: You MUST replace this with a valid RemoteEvent name from the specific game
--- Most games do not expose vulnerable remotes to the client.
-local function getTargetRemote()
-    -- Example: Look for a common name, but this will likely be nil in most games
-    return ReplicatedStorage:FindFirstChild("BuyItem") -- Common in Bedwars, but protected
-end
-
-local function startTest()
-    if isTesting then return end
-    isTesting = false -- Ensure we don't start twice
-    
-    -- Warning: This will likely get you kicked if the remote is protected or rate-limited
-    StatusLabel.Text = "Status: Attempting to start..."
-    
-    local target = getTargetRemote()
-    if not target then
-        StatusLabel.Text = "Status: No valid RemoteEvent found. Test aborted."
-        return
-    end
-    
-    if not target:IsA("RemoteEvent") then
-        StatusLabel.Text = "Status: Target is not a RemoteEvent. Aborted."
-        return
-    end
-
-    isTesting = true
-    StatusLabel.Text = "Status: Running Test (Risk of Kick)..."
-    StatusLabel.TextColor3 = Color3.fromRGB(255, 165, 0)
-    
-    local startTime = os.clock()
-    local packetCount = 0
-    
-    connection = RunService.Heartbeat:Connect(function()
-        if not isTesting or (os.clock() - startTime) > TEST_DURATION then
-            isTesting = false
-            if connection then connection:Disconnect() end
-            StatusLabel.Text = "Status: Test Complete / Stopped."
-            StatusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-            return
-        end
-        
-        -- Attempt to fire the remote
-        local success, err = pcall(function()
-            target:FireServer("TEST_DATA")
-        end)
-        
-        packetCount = packetCount + 1
-        StatusLabel.Text = string.format("Status: Running (Sent: %d)", packetCount)
-        
-        if not success then
-            -- If FireServer fails (e.g., rate limit or security kick), stop immediately
-            isTesting = false
-            StatusLabel.Text = "Status: Failed (Server rejected request). Stopping."
-            if connection then connection:Disconnect() end
-        end
-    end)
-end
-
-local function stopTest()
-    if not isTesting then return end
-    isTesting = false
-    if connection then connection:Disconnect() end
-    StatusLabel.Text = "Status: Force Stopped by User."
-    StatusLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-end
-
--- Fixed: Properly connect the buttons
-StartBtn.MouseButton1Click:Connect(function()
-    if not isTesting then
-        startTest()
-    end
+-- Button Hover/Click Effects (Visual only)
+CrashBtn.MouseEnter:Connect(function()
+    CrashBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    CrashBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    BtnStroke.Color = Color3.fromRGB(80, 80, 80)
 end)
 
-StopBtn.MouseButton1Click:Connect(function()
-    stopTest()
+CrashBtn.MouseLeave:Connect(function()
+    CrashBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    CrashBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    BtnStroke.Color = Color3.fromRGB(60, 60, 60)
 end)
 
-StatusLabel.Text = "Status: Ready (Use on Private Server Only)"
+CrashBtn.MouseButton1Click:Connect(function()
+    -- Visual feedback only
+    CrashBtn.Text = "FAILED"
+    CrashBtn.TextColor3 = Color3.fromRGB(255, 0, 0)
+    
+    task.wait(1)
+    
+    CrashBtn.Text = "CRASH"
+    CrashBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    
+    -- Alert the user
+    print("Server crash attempts are blocked by Roblox security. This is a visual simulation only.")
+end)
+
+-- Warning Label
+local WarningLabel = Instance.new("TextLabel")
+WarningLabel.Size = UDim2.new(1, 0, 0, 20)
+WarningLabel.Position = UDim2.new(0, 0, 1, -20)
+WarningLabel.BackgroundTransparency = 1
+WarningLabel.Text = "Server Protected - Visual Only"
+WarningLabel.TextColor3 = Color3.fromRGB(100, 100, 100)
+WarningLabel.Font = Enum.Font.Gotham
+WarningLabel.TextSize = 10
+WarningLabel.Parent = MainFrame
