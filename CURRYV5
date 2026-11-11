@@ -1,41 +1,95 @@
--- CURRYV4 UI - GUARANTEED WORKING VERSION
--- Press INSERT key to Open/Close the menu
+-- CURRYV4 UI - MOBILE SUPPORTED VERSION
+-- Drag the toggle button to move it. Tap it to open/close the menu.
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
-
--- Check if executor supports UserInputService
-local UserInputService = nil
-local success, result = pcall(function()
-    UserInputService = game:GetService("UserInputService")
-    if not UserInputService then
-        error("UserInputService not available")
-    end
-end)
-
-if not success then
-    warn("Keybinds not supported on this executor. Menu will be visible by default.")
-end
+local UserInputService = game:GetService("UserInputService)
+local RunService = game:GetService("RunService)
 
 -- Cleanup existing GUI
 local existingGui = PlayerGui:FindFirstChild("CURRYV4_Menu")
-if existingGui then 
-    existingGui:Destroy()
-    warn("Removed existing CURRYV4 Menu")
-end
+if existingGui then existingGui:Destroy() end
+local existingToggle = PlayerGui:FindFirstChild("CURRYV4_Toggle")
+if existingToggle then existingToggle:Destroy() end
 
+-- SCREENGUI FOR THE TOGGLE BUTTON (Always Visible)
+local ToggleScreenGui = Instance.new("ScreenGui")
+ToggleScreenGui.Name = "CURRYV4_Toggle"
+ToggleScreenGui.ResetOnSpawn = false
+ToggleScreenGui.IgnoreGuiInset = true -- Show even with Roblox UI
+ToggleScreenGui.Parent = PlayerGui
+
+-- THE TOGGLE BUTTON (Draggable)
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Size = UDim2.new(0, 60, 0, 60)
+ToggleButton.Position = UDim2.new(0, 10, 0, 100) -- Start position
+ToggleButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+ToggleButton.Text = ""
+ToggleButton.Parent = ToggleScreenGui
+
+local ToggleCorner = Instance.new("UICorner")
+ToggleCorner.CornerRadius = UDim.new(0, 10)
+ToggleCorner.Parent = ToggleButton
+
+local ToggleStroke = Instance.new("UIStroke")
+ToggleStroke.Color = Color3.fromRGB(60, 60, 60)
+ToggleStroke.Thickness = 2
+ToggleStroke.Parent = ToggleButton
+
+-- Icon/Text for the toggle button
+local ToggleLabel = Instance.new("TextLabel")
+ToggleLabel.Size = UDim2.new(1, 0, 1, 0)
+ToggleLabel.BackgroundTransparency = 1
+ToggleLabel.Text = "MENU"
+ToggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleLabel.Font = Enum.Font.GothamBold
+ToggleLabel.TextSize = 12
+ToggleLabel.Parent = ToggleButton
+
+-- DRAGGING LOGIC FOR MOBILE
+local dragging = false
+local dragInput, mousePos, inputPos
+
+ToggleButton.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        inputPos = input.Position - ToggleButton.AbsolutePosition
+    end
+end)
+
+ToggleButton.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+ToggleButton.TouchDrag:Connect(function(input)
+    if dragging then
+        local position = (input.Position - inputPos)
+        ToggleButton.Position = UDim2.new(0, position.X, 0, position.Y)
+    end
+end)
+
+ToggleButton.MouseDrag:Connect(function(input)
+    if dragging then
+        local position = (input.Position - inputPos)
+        ToggleButton.Position = UDim2.new(0, position.X, 0, position.Y)
+    end
+end)
+
+-- MAIN MENU GUI (Hidden by default)
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "CURRYV4_Menu"
 ScreenGui.ResetOnSpawn = false
+ScreenGui.IgnoreGuiInset = true
 ScreenGui.Parent = PlayerGui
 
--- Main Frame
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 800, 0, 600)
 MainFrame.Position = UDim2.new(0.5, -400, 0.5, -300)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-MainFrame.Visible = false -- Hidden by default
+MainFrame.Visible = false -- HIDDEN BY DEFAULT
 MainFrame.Parent = ScreenGui
 
 local UICorner = Instance.new("UICorner")
@@ -60,6 +114,7 @@ CloseBtn.Parent = MainFrame
 
 CloseBtn.MouseButton1Click:Connect(function()
     MainFrame.Visible = false
+    ToggleButton.Visible = true -- Show toggle button when menu is closed
 end)
 
 -- Rainbow Title "CURRYV4"
@@ -179,23 +234,24 @@ for i, category in ipairs(categories) do
     createTabButton(category, i)
 end
 
--- Toggle Function
+-- TOGGLE FUNCTION
 local function toggleMenu()
-    MainFrame.Visible = not MainFrame.Visible
+    if MainFrame.Visible then
+        MainFrame.Visible = false
+        ToggleButton.Visible = true
+    else
+        MainFrame.Visible = true
+        ToggleButton.Visible = false
+    end
 end
 
--- Keybind Setup
-if UserInputService then
-    UserInputService.InputBegan:Connect(function(input, gameProcessed)
-        if gameProcessed then return end
-        
-        if input.KeyCode == Enum.KeyCode.Insert then
-            toggleMenu()
-        end
-    end
-    print("CURRYV4 Loaded. Press INSERT key to open/close the menu.")
-else
-    -- If keybinds don't work, make menu visible by default so user can at least see it
-    MainFrame.Visible = true
-    warn("Keybinds not supported. Menu is visible by default. Press X to close.")
-end
+-- CONNECT THE TOGGLE BUTTON
+ToggleButton.MouseButton1Click:Connect(function()
+    toggleMenu()
+end)
+
+ToggleButton.TouchTap:Connect(function()
+    toggleMenu()
+end)
+
+print("CURRYV4 Mobile UI Loaded. Drag the 'MENU' button to move it. Tap to open.")
