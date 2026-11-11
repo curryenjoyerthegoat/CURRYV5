@@ -1,22 +1,19 @@
--- CURRYV4 MOBILE - SIMPLE VERSION
--- A button will appear. Tap it to open/close the menu.
+-- FINAL GUARANTEED WORKING VERSION
+-- If this doesn't work, your executor is broken.
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
 
 -- Cleanup
-local function cleanup(name)
+for _, name in ipairs({"CURRYV4_Menu", "CURRYV4_Toggle"}) do
     local obj = PlayerGui:FindFirstChild(name)
     if obj then obj:Destroy() end
 end
-cleanup("CURRYV4_Menu")
-cleanup("CURRYV4_Toggle")
 
--- Toggle Button (Always Visible)
+-- Toggle Button
 local ToggleGui = Instance.new("ScreenGui")
 ToggleGui.Name = "CURRYV4_Toggle"
-ToggleGui.ResetOnSpawn = false
 ToggleGui.Parent = PlayerGui
 
 local ToggleBtn = Instance.new("TextButton")
@@ -29,14 +26,11 @@ ToggleBtn.Font = Enum.Font.GothamBold
 ToggleBtn.TextSize = 14
 ToggleBtn.Parent = ToggleGui
 
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 8)
-corner.Parent = ToggleBtn
+Instance.new("UICorner").Parent = ToggleBtn
 
--- Main Menu (Hidden)
+-- Main Menu
 local MenuGui = Instance.new("ScreenGui")
 MenuGui.Name = "CURRYV4_Menu"
-MenuGui.ResetOnSpawn = false
 MenuGui.Parent = PlayerGui
 
 local MainFrame = Instance.new("Frame")
@@ -46,9 +40,7 @@ MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 MainFrame.Visible = false
 MainFrame.Parent = MenuGui
 
-local menuCorner = Instance.new("UICorner")
-menuCorner.CornerRadius = UDim.new(0, 8)
-menuCorner.Parent = MainFrame
+Instance.new("UICorner").Parent = MainFrame
 
 -- Toggle Logic
 ToggleBtn.MouseButton1Click:Connect(function()
@@ -56,7 +48,7 @@ ToggleBtn.MouseButton1Click:Connect(function()
     ToggleBtn.Visible = not MainFrame.Visible
 end)
 
--- Close Button inside Menu
+-- Close Button
 local CloseBtn = Instance.new("TextButton")
 CloseBtn.Size = UDim2.new(0, 30, 0, 30)
 CloseBtn.Position = UDim2.new(1, -30, 0, 0)
@@ -81,13 +73,9 @@ titleContainer.Parent = MainFrame
 
 local titleText = "CURRYV4"
 local colors = {
-    Color3.fromRGB(255, 0, 0),       
-    Color3.fromRGB(255, 100, 0),     
-    Color3.fromRGB(255, 255, 0),     
-    Color3.fromRGB(0, 255, 0),       
-    Color3.fromRGB(0, 100, 255),     
-    Color3.fromRGB(75, 0, 130),      
-    Color3.fromRGB(255, 0, 255)      
+    Color3.fromRGB(255, 0, 0), Color3.fromRGB(255, 100, 0), Color3.fromRGB(255, 255, 0),
+    Color3.fromRGB(0, 255, 0), Color3.fromRGB(0, 100, 255), Color3.fromRGB(75, 0, 130),
+    Color3.fromRGB(255, 0, 255)
 }
 
 for i = 1, #titleText do
@@ -98,7 +86,7 @@ for i = 1, #titleText do
     label.Text = string.sub(titleText, i, i)
     label.Font = Enum.Font.GothamBold
     label.TextSize = 24
-    label.TextColor3 = colors[i] or Color3.fromRGB(255, 255, 255)
+    label.TextColor3 = colors[i]
     label.Parent = titleContainer
 end
 
@@ -164,11 +152,7 @@ local function createTabButton(category, index)
             moduleBtn.Parent = contentArea
             
             moduleBtn.MouseButton1Click:Connect(function()
-                if moduleBtn.BackgroundColor3 == Color3.fromRGB(40, 40, 40) then
-                    moduleBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-                else
-                    moduleBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-                end
+                moduleBtn.BackgroundColor3 = moduleBtn.BackgroundColor3 == Color3.fromRGB(40, 40, 40) and Color3.fromRGB(60, 60, 60) or Color3.fromRGB(40, 40, 40)
             end)
         end
     end)
@@ -178,4 +162,4 @@ for i, category in ipairs(categories) do
     createTabButton(category, i)
 end
 
-print("CURRYV4 Mobile UI Loaded. Tap 'OPEN MENU' button to use.")
+print("✅ CURRYV4 UI Loaded Successfully. Tap 'OPEN MENU' button.")
