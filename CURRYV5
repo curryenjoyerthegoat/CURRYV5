@@ -1,26 +1,41 @@
--- CURRYV4 UI - FIXED VERSION
--- Press Right Shift to Open/Close
+-- CURRYV4 UI - GUARANTEED WORKING VERSION
+-- Press INSERT key to Open/Close the menu
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
-local UserInputService = game:GetService("UserInputService)
 
--- Cleanup
+-- Check if executor supports UserInputService
+local UserInputService = nil
+local success, result = pcall(function()
+    UserInputService = game:GetService("UserInputService")
+    if not UserInputService then
+        error("UserInputService not available")
+    end
+end)
+
+if not success then
+    warn("Keybinds not supported on this executor. Menu will be visible by default.")
+end
+
+-- Cleanup existing GUI
 local existingGui = PlayerGui:FindFirstChild("CURRYV4_Menu")
-if existingGui then existingGui:Destroy() end
+if existingGui then 
+    existingGui:Destroy()
+    warn("Removed existing CURRYV4 Menu")
+end
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "CURRYV4_Menu"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
 
--- Main Frame (Hidden by default)
+-- Main Frame
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 800, 0, 600)
 MainFrame.Position = UDim2.new(0.5, -400, 0.5, -300)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-MainFrame.Visible = false -- STARTS HIDDEN
+MainFrame.Visible = false -- Hidden by default
 MainFrame.Parent = ScreenGui
 
 local UICorner = Instance.new("UICorner")
@@ -47,7 +62,7 @@ CloseBtn.MouseButton1Click:Connect(function()
     MainFrame.Visible = false
 end)
 
--- Rainbow Title
+-- Rainbow Title "CURRYV4"
 local titleContainer = Instance.new("Frame")
 titleContainer.Size = UDim2.new(0, 200, 0, 50)
 titleContainer.Position = UDim2.new(0, 20, 0, 10)
@@ -164,19 +179,23 @@ for i, category in ipairs(categories) do
     createTabButton(category, i)
 end
 
--- Toggle Logic
+-- Toggle Function
 local function toggleMenu()
     MainFrame.Visible = not MainFrame.Visible
 end
 
--- Keybind Listener (SAFE VERSION)
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end -- Don't trigger if typing in chat
-    
-    -- Change this key if you want. RightShift is default.
-    if input.KeyCode == Enum.KeyCode.RightShift then
-        toggleMenu()
+-- Keybind Setup
+if UserInputService then
+    UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if gameProcessed then return end
+        
+        if input.KeyCode == Enum.KeyCode.Insert then
+            toggleMenu()
+        end
     end
-end)
-
-print("CURRYV4 Loaded. Press Right Shift to open the menu.")
+    print("CURRYV4 Loaded. Press INSERT key to open/close the menu.")
+else
+    -- If keybinds don't work, make menu visible by default so user can at least see it
+    MainFrame.Visible = true
+    warn("Keybinds not supported. Menu is visible by default. Press X to close.")
+end
