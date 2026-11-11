@@ -1,216 +1,145 @@
--- CURRYV4 V4 UI - FIXED FOR MOBILE
--- Tap the "V4" button to open/close the menu.
--- Modules toggle RED (enabled) or BLACK (disabled) visually only.
+-- CURRYV4 UI - Vape V4 Style
+-- Created for mobile executors (Delta, Arceus X)
 
 local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local PlayerGui = player:WaitForChild("PlayerGui")
+local LocalPlayer = Players.LocalPlayer
+local TweenService = game:GetService("TweenService)
 
--- Cleanup
-for _, name in ipairs({"CURRYV4_V4", "CURRYV4_Toggle"}) do
-    local obj = PlayerGui:FindFirstChild(name)
-    if obj then obj:Destroy() end
-end
-
--- Toggle Button (Fixed for Mobile)
-local ToggleGui = Instance.new("ScreenGui")
-ToggleGui.Name = "CURRYV4_Toggle"
-ToggleGui.Parent = PlayerGui
-ToggleGui.IgnoreGuiInset = true
-
-local ToggleBtn = Instance.new("TextButton")
-ToggleBtn.Size = UDim2.new(0, 60, 0, 60)
-ToggleBtn.Position = UDim2.new(0, 10, 0, 100)
-ToggleBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-ToggleBtn.Text = ""
-ToggleBtn.Parent = ToggleGui
-
-local toggleCorner = Instance.new("UICorner")
-toggleCorner.CornerRadius = UDim.new(0, 10)
-toggleCorner.Parent = ToggleBtn
-
-local toggleStroke = Instance.new("UIStroke")
-toggleStroke.Color = Color3.fromRGB(60, 60, 60)
-toggleStroke.Thickness = 2
-toggleStroke.Parent = ToggleBtn
-
-local toggleLabel = Instance.new("TextLabel")
-toggleLabel.Size = UDim2.new(1, 0, 1, 0)
-toggleLabel.BackgroundTransparency = 1
-toggleLabel.Text = "V4"
-toggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleLabel.Font = Enum.Font.GothamBold
-toggleLabel.TextSize = 20
-toggleLabel.Parent = ToggleBtn
-
--- Main Menu (Hidden)
-local MenuGui = Instance.new("ScreenGui")
-MenuGui.Name = "CURRYV4_V4"
-MenuGui.Parent = PlayerGui
-MenuGui.IgnoreGuiInset = true
-
+-- Main UI Creation
+local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 900, 0, 600)
-MainFrame.Position = UDim2.new(0.5, -450, 0.5, -300)
-MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+local TitleFrame = Instance.new("Frame")
+local TitleLabel = Instance.new("TextLabel")
+
+-- Toggle Button (for mobile)
+local ToggleButton = Instance.new("TextButton")
+
+-- Menu Items
+local ScrollFrame = Instance.new("ScrollingFrame")
+local UIListLayout = Instance.new("UIListLayout")
+
+-- Initialize ScreenGui
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.Name = "CURRYV4UI"
+
+-- Toggle Button Setup (Mobile-Friendly)
+ToggleButton.Parent = ScreenGui
+ToggleButton.Size = UDim2.new(0, 50, 0, 50)
+ToggleButton.Position = UDim2.new(0, 10, 0, 100) -- Top-left corner
+ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+ToggleButton.Text = "C4"
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.TextSize = 18
+ToggleButton.Font = Enum.Font.SourceSansBold
+ToggleButton.BorderSizePixel = 0
+ToggleButton.Visible = true
+
+-- Main Frame
+MainFrame.Parent = ScreenGui
+MainFrame.Size = UDim2.new(0, 400, 0, 500)
+MainFrame.Position = UDim2.new(0, 70, 0, 100)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+MainFrame.BorderSizePixel = 0
 MainFrame.Visible = false
-MainFrame.Parent = MenuGui
 
-local mainCorner = Instance.new("UICorner")
-mainCorner.CornerRadius = UDim.new(0, 8)
-mainCorner.Parent = MainFrame
+-- Title Frame
+TitleFrame.Parent = MainFrame
+TitleFrame.Size = UDim2.new(1, 0, 0, 40)
+TitleFrame.Position = UDim2.new(0, 0, 0, 0)
+TitleFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+TitleFrame.BorderSizePixel = 0
 
-local mainStroke = Instance.new("UIStroke")
-mainStroke.Color = Color3.fromRGB(40, 40, 40)
-mainStroke.Thickness = 1
-mainStroke.Parent = MainFrame
+-- Rainbow Title Label
+TitleLabel.Parent = TitleFrame
+TitleLabel.Size = UDim2.new(1, 0, 1, 0)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Text = "CURRYV4"
+TitleLabel.TextSize = 28
+TitleLabel.Font = Enum.Font.SourceSansBold
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+TitleLabel.TextYAlignment = Enum.TextYAlignment.Center
 
--- FIXED Toggle Logic (Mobile Compatible)
-local function toggleMenu()
-    local isVisible = MainFrame.Visible
-    MainFrame.Visible = not isVisible
-    ToggleBtn.Visible = isVisible
+-- Scroll Frame for Menu Items
+ScrollFrame.Parent = MainFrame
+ScrollFrame.Size = UDim2.new(1, 0, 1, -40)
+ScrollFrame.Position = UDim2.new(0, 0, 0, 40)
+ScrollFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+ScrollFrame.BorderSizePixel = 0
+ScrollFrame.ScrollBarThickness = 5
+ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(60, 60, 60)
+
+UIListLayout.Parent = ScrollFrame
+UIListLayout.Padding = UDim2.new(0, 5)
+
+-- Rainbow Color Function
+local function createRainbowEffect()
+    local hue = 0
+    while true do
+        wait(0.05)
+        hue = (hue + 0.01) % 1
+        local color = Color3.fromHSV(hue, 1, 1)
+        TitleLabel.TextColor3 = color
+    end
 end
 
--- Connect the button properly
-ToggleBtn.MouseButton1Click:Connect(function()
-    toggleMenu()
+-- Toggle UI Visibility
+ToggleButton.MouseButton1Click:Connect(function()
+    MainFrame.Visible = not MainFrame.Visible
+    if MainFrame.Visible then
+        ToggleButton.Text = "✕"
+    else
+        ToggleButton.Text = "C4"
+    end
 end)
 
--- Close Button
-local CloseBtn = Instance.new("TextButton")
-CloseBtn.Size = UDim2.new(0, 30, 0, 30)
-CloseBtn.Position = UDim2.new(1, -30, 0, 0)
-CloseBtn.BackgroundTransparency = 1
-CloseBtn.Text = "X"
-CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseBtn.Font = Enum.Font.GothamBold
-CloseBtn.TextSize = 16
-CloseBtn.Parent = MainFrame
+-- Create Menu Button (Example)
+local function createMenuButton(parent, name, callback)
+    local button = Instance.new("TextButton")
+    button.Parent = parent
+    button.Size = UDim2.new(1, 0, 0, 40)
+    button.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    button.Text = name
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.TextSize = 16
+    button.Font = Enum.Font.SourceSans
+    button.BorderSizePixel = 0
+    
+    button.MouseButton1Click:Connect(function()
+        if callback then callback() end
+        -- Visual feedback
+        button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+        wait(0.1)
+        button.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    end
+end
 
-CloseBtn.MouseButton1Click:Connect(function()
-    MainFrame.Visible = false
-    ToggleBtn.Visible = true
+-- Example Menu Items (Add your features here)
+createMenuButton(ScrollFrame, "Kill Aura", function()
+    -- Add your Kill Aura code here
+    print("Kill Aura toggled")
 end)
 
--- Rainbow Title "CURRYV4"
-local titleContainer = Instance.new("Frame")
-titleContainer.Size = UDim2.new(0, 200, 0, 50)
-titleContainer.Position = UDim2.new(0, 20, 0, 10)
-titleContainer.BackgroundTransparency = 1
-titleContainer.Parent = MainFrame
+createMenuButton(ScrollFrame, "Speed", function()
+    -- Add your Speed code here
+    print("Speed toggled")
+end)
 
-local titleText = "CURRYV4"
-local colors = {
-    Color3.fromRGB(255, 0, 0),       
-    Color3.fromRGB(255, 100, 0),     
-    Color3.fromRGB(255, 255, 0),     
-    Color3.fromRGB(0, 255, 0),       
-    Color3.fromRGB(0, 100, 255),     
-    Color3.fromRGB(75, 0, 130),      
-    Color3.fromRGB(255, 0, 255)      
-}
+createMenuButton(ScrollFrame, "Fly", function()
+    -- Add your Fly code here
+    print("Fly toggled")
+end)
 
-for i = 1, #titleText do
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(0, 25, 0, 50)
-    label.Position = UDim2.new(0, (i-1)*25, 0, 0)
-    label.BackgroundTransparency = 1
-    label.Text = string.sub(titleText, i, i)
-    label.Font = Enum.Font.GothamBold
-    label.TextSize = 24
-    label.TextColor3 = colors[i]
-    label.Parent = titleContainer
+createMenuButton(ScrollFrame, "ESP", function()
+    -- Add your ESP code here
+    print("ESP toggled")
+end)
+
+-- Start Rainbow Effect
+spawn(createRainbowEffect)
+
+-- Mobile optimization
+if game:GetService("UserInputService").TouchEnabled then
+    ToggleButton.Size = UDim2.new(0, 60, 0, 60)
+    ToggleButton.Position = UDim2.new(0, 10, 0, 100)
 end
-
--- Categories
-local categories = {
-    {name = "Combat", modules = {"AimAssist", "AutoClicker", "Reach", "SilentAim", "Sprint", "TriggerBot"}},
-    {name = "Blatant", modules = {"AntiFall", "Fly", "HighJump", "HitBoxes", "Invisible", "KillAura", "LongJump", "MouseTP", "Phase", "Speed", "Spider", "SpinBot", "TargetStrafe"}},
-    {name = "Render", modules = {"Arrows", "Chams", "ESP", "GamingChair", "Health", "NameTags", "PlayerModel", "Search", "Tracers", "Waypoints"}},
-    {name = "Utility", modules = {"AnimationPlayer", "AntiRagdoll", "AutoRejoin", "Blink", "ChatSpammer", "Disabler", "Panic", "Rejoin", "StaffDetector"}},
-    {name = "World", modules = {"Anti-AFK", "Freecam", "Gravity", "Parkour", "SafeWalk", "Xray"}}
-}
-
--- Tab System
-local tabContainer = Instance.new("Frame")
-tabContainer.Size = UDim2.new(0, 150, 1, -60)
-tabContainer.Position = UDim2.new(0, 10, 0, 60)
-tabContainer.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-tabContainer.Parent = MainFrame
-
-local tabCorner = Instance.new("UICorner")
-tabCorner.CornerRadius = UDim.new(0, 5)
-tabCorner.Parent = tabContainer
-
-local contentArea = Instance.new("ScrollingFrame")
-contentArea.Size = UDim2.new(1, -170, 1, -70)
-contentArea.Position = UDim2.new(0, 170, 0, 60)
-contentArea.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-contentArea.CanvasSize = UDim2.new(0, 0, 0, 0)
-contentArea.ScrollBarThickness = 8
-contentArea.ScrollBarImageColor3 = Color3.fromRGB(60, 60, 60)
-contentArea.Parent = MainFrame
-
-local contentCorner = Instance.new("UICorner")
-contentCorner.CornerRadius = UDim.new(0, 5)
-contentCorner.Parent = contentArea
-
-local contentLayout = Instance.new("UIListLayout")
-contentLayout.Padding = UDim.new(0, 5)
-contentLayout.Parent = contentArea
-
-local function updateCanvasSize()
-    contentArea.CanvasSize = UDim2.new(0, 0, 0, contentLayout.AbsoluteContentSize.Y)
-end
-
-contentLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvasSize)
-
-local function createTabButton(category, index)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, 0, 0, 35)
-    btn.Position = UDim2.new(0, 0, 0, (index-1)*40 + 5)
-    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    btn.TextColor3 = Color3.fromRGB(200, 200, 200)
-    btn.Text = category.name
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 14
-    btn.Parent = tabContainer
-
-    btn.MouseButton1Click:Connect(function()
-        for _, child in pairs(contentArea:GetChildren()) do
-            if child:IsA("Frame") then child:Destroy() end
-        end
-        
-        for i, moduleName in ipairs(category.modules) do
-            local moduleBtn = Instance.new("TextButton")
-            moduleBtn.Size = UDim2.new(1, -20, 0, 35)
-            moduleBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-            moduleBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-            moduleBtn.Text = moduleName
-            moduleBtn.Font = Enum.Font.GothamBold
-            moduleBtn.TextSize = 14
-            moduleBtn.Parent = contentArea
-            
-            local btnCorner = Instance.new("UICorner")
-            btnCorner.CornerRadius = UDim.new(0, 4)
-            btnCorner.Parent = moduleBtn
-            
-            moduleBtn.MouseButton1Click:Connect(function()
-                if moduleBtn.BackgroundColor3 == Color3.fromRGB(40, 40, 40) then
-                    moduleBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-                    moduleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-                else
-                    moduleBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-                    moduleBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-                end
-            end)
-        end
-    end)
-end
-
-for i, category in ipairs(categories) do
-    createTabButton(category, i)
-end
-
-print("✅ CURRYV4 V4 UI Loaded. Tap the 'V4' button to open.")
