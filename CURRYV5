@@ -1,25 +1,59 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
-local TweenService = game:GetService("TweenService)
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService)
 
 -- Cleanup existing GUI
 local existingGui = PlayerGui:FindFirstChild("CURRYV4")
-if existingGui then 
-    existingGui:Destroy() 
-end
+if existingGui then existingGui:Destroy() end
+local existingToggle = PlayerGui:FindFirstChild("ToggleBtn")
+if existingToggle then existingToggle:Destroy() end
 
+-- SCREENGUI FOR THE TOGGLE BUTTON (Always Visible)
+local ToggleScreenGui = Instance.new("ScreenGui")
+ToggleScreenGui.Name = "ToggleBtn"
+ToggleScreenGui.ResetOnSpawn = false
+ToggleScreenGui.Parent = PlayerGui
+
+-- THE TOGGLE BUTTON (Icon)
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Size = UDim2.new(0, 50, 0, 50)
+ToggleButton.Position = UDim2.new(0, 10, 0, 10) -- Top Left Corner
+ToggleButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+ToggleButton.Text = "" -- No text, just an icon or color
+ToggleButton.Parent = ToggleScreenGui
+
+local ToggleCorner = Instance.new("UICorner")
+ToggleCorner.CornerRadius = UDim.new(0, 8)
+ToggleCorner.Parent = ToggleButton
+
+local ToggleStroke = Instance.new("UIStroke")
+ToggleStroke.Color = Color3.fromRGB(60, 60, 60)
+ToggleStroke.Thickness = 2
+ToggleStroke.Parent = ToggleButton
+
+-- Add a simple icon or text to the toggle button so users know what it is
+local ToggleLabel = Instance.new("TextLabel")
+ToggleLabel.Size = UDim2.new(1, 0, 1, 0)
+ToggleLabel.BackgroundTransparency = 1
+ToggleLabel.Text = "MENU"
+ToggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleLabel.Font = Enum.Font.GothamBold
+ToggleLabel.TextSize = 14
+ToggleLabel.Parent = ToggleButton
+
+-- MAIN MENU GUI (Hidden by default)
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "CURRYV4"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
 
--- Main Window
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 800, 0, 600)
 MainFrame.Position = UDim2.new(0.5, -400, 0.5, -300)
-MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15) -- Very dark background
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.Visible = false -- HIDDEN BY DEFAULT
 MainFrame.Parent = ScreenGui
 
 local UICorner = Instance.new("UICorner")
@@ -31,7 +65,7 @@ Stroke.Color = Color3.fromRGB(30, 30, 30)
 Stroke.Thickness = 1
 Stroke.Parent = MainFrame
 
--- Close Button
+-- Close Button (Inside Menu)
 local CloseBtn = Instance.new("TextButton")
 CloseBtn.Size = UDim2.new(0, 30, 0, 30)
 CloseBtn.Position = UDim2.new(1, -30, 0, 0)
@@ -43,7 +77,8 @@ CloseBtn.TextSize = 16
 CloseBtn.Parent = MainFrame
 
 CloseBtn.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
+    MainFrame.Visible = false
+    ToggleButton.Visible = true -- Show toggle button again
 end)
 
 -- Rainbow Title "CURRYV4"
@@ -55,13 +90,13 @@ titleContainer.Parent = MainFrame
 
 local titleText = "CURRYV4"
 local colors = {
-    Color3.fromRGB(255, 0, 0),       -- C (Red)
-    Color3.fromRGB(255, 100, 0),     -- U (Orange)
-    Color3.fromRGB(255, 255, 0),     -- R (Yellow)
-    Color3.fromRGB(0, 255, 0),       -- R (Green)
-    Color3.fromRGB(0, 100, 255),     -- Y (Blue)
-    Color3.fromRGB(75, 0, 130),      -- V (Indigo)
-    Color3.fromRGB(255, 0, 255)      -- 4 (Magenta)
+    Color3.fromRGB(255, 0, 0),       
+    Color3.fromRGB(255, 100, 0),     
+    Color3.fromRGB(255, 255, 0),     
+    Color3.fromRGB(0, 255, 0),       
+    Color3.fromRGB(0, 100, 255),     
+    Color3.fromRGB(75, 0, 130),      
+    Color3.fromRGB(255, 0, 255)      
 }
 
 for i = 1, #titleText do
@@ -77,7 +112,7 @@ for i = 1, #titleText do
     label.Parent = titleContainer
 end
 
--- Module Categories (Tabs)
+-- Module Categories
 local categories = {
     {name = "Combat", modules = {"AimAssist", "AutoClicker", "Reach", "SilentAim", "Sprint", "TriggerBot"}},
     {name = "Blatant", modules = {"AntiFall", "Fly", "HighJump", "HitBoxes", "Invisible", "KillAura", "LongJump", "MouseTP", "Phase", "Speed", "Spider", "SpinBot", "TargetStrafe"}},
@@ -86,10 +121,7 @@ local categories = {
     {name = "World", modules = {"Anti-AFK", "Freecam", "Gravity", "Parkour", "SafeWalk", "Xray"}}
 }
 
-local currentTab = nil
-local tabButtons = {}
-
--- Create Tab System
+-- Tab System
 local tabContainer = Instance.new("Frame")
 tabContainer.Size = UDim2.new(0, 150, 1, -60)
 tabContainer.Position = UDim2.new(0, 10, 0, 60)
@@ -100,7 +132,6 @@ local tabCorner = Instance.new("UICorner")
 tabCorner.CornerRadius = UDim.new(0, 5)
 tabCorner.Parent = tabContainer
 
--- Content Area
 local contentArea = Instance.new("ScrollingFrame")
 contentArea.Size = UDim2.new(1, -170, 1, -70)
 contentArea.Position = UDim2.new(0, 170, 0, 60)
@@ -124,39 +155,35 @@ end
 
 contentLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvasSize)
 
--- Create Tab Buttons
 local function createTabButton(category, index)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, 0, 0, 30)
     btn.Position = UDim2.new(0, 0, 0, (index-1)*35 + 5)
-    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- Black/Dark Gray
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255) -- White Text
+    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     btn.Text = category.name
     btn.Font = Enum.Font.GothamBold
     btn.TextSize = 14
     btn.Parent = tabContainer
 
     btn.MouseButton1Click:Connect(function()
-        -- Clear content area
         for _, child in pairs(contentArea:GetChildren()) do
             if child:IsA("Frame") then
                 child:Destroy()
             end
         end
         
-        -- Create module buttons for selected category
         for i, moduleName in ipairs(category.modules) do
             local moduleBtn = Instance.new("TextButton")
             moduleBtn.Size = UDim2.new(1, -20, 0, 30)
-            moduleBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40) -- Black Button
-            moduleBtn.TextColor3 = Color3.fromRGB(255, 255, 255) -- White Text
+            moduleBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+            moduleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
             moduleBtn.Text = moduleName
             moduleBtn.Font = Enum.Font.GothamBold
             moduleBtn.TextSize = 14
             moduleBtn.Parent = contentArea
             
             moduleBtn.MouseButton1Click:Connect(function()
-                -- Toggle visual state only
                 if moduleBtn.BackgroundColor3 == Color3.fromRGB(40, 40, 40) then
                     moduleBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
                 else
@@ -165,16 +192,35 @@ local function createTabButton(category, index)
             end)
         end
     end)
-    
-    tabButtons[index] = btn
 end
 
--- Initialize Tabs
 for i, category in ipairs(categories) do
     createTabButton(category, i)
 end
 
--- Open first tab by default
-if #categories > 0 then
-    tabButtons[1].MouseButton1Click:Invoke()
+-- TOGGLE FUNCTION
+local function toggleMenu()
+    if MainFrame.Visible then
+        MainFrame.Visible = false
+        ToggleButton.Visible = true -- Show the toggle button when menu is closed
+    else
+        MainFrame.Visible = true
+        ToggleButton.Visible = false -- Hide the toggle button when menu is open
+    end
 end
+
+-- CONNECT THE TOGGLE BUTTON
+ToggleButton.MouseButton1Click:Connect(function()
+    toggleMenu()
+end)
+
+-- KEYBIND (Right Shift)
+local toggleKey = Enum.KeyCode.RightShift 
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == toggleKey then
+        toggleMenu()
+    end
+end)
+
+print("CURRYV4 UI Loaded. Use the 'MENU' button or Right Shift to open.")
