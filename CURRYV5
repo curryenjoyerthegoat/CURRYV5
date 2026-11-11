@@ -1,6 +1,8 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
+local TweenService = game:GetService("TweenService)
+local UserInputService = game:GetService("UserInputService")
 
 -- Cleanup existing GUI
 local existingGui = PlayerGui:FindFirstChild("CURRYV4")
@@ -13,57 +15,46 @@ ScreenGui.Name = "CURRYV4"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
 
--- Main Window (Dark Theme)
+-- Main Window
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 320, 0, 180)
-MainFrame.Position = UDim2.new(0.5, -160, 0.5, -90)
+MainFrame.Size = UDim2.new(0, 800, 0, 600)
+MainFrame.Position = UDim2.new(0.5, -400, 0.5, -300)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15) -- Very dark background
 MainFrame.Parent = ScreenGui
 
--- Decorative Rainbow Border (Animated)
-local Stroke = Instance.new("UIStroke")
-Stroke.Color = Color3.fromRGB(255, 0, 0)
-Stroke.Thickness = 3
-Stroke.Parent = MainFrame
-
-task.spawn(function()
-    local hue = 0
-    while ScreenGui.Parent ~= nil do
-        hue = (hue + 0.01) % 1
-        Stroke.Color = Color3.fromHSV(hue, 1, 1)
-        task.wait(0.03)
-    end
-end)
-
 local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 10)
+UICorner.CornerRadius = UDim.new(0, 8)
 UICorner.Parent = MainFrame
+
+local Stroke = Instance.new("UIStroke")
+Stroke.Color = Color3.fromRGB(30, 30, 30)
+Stroke.Thickness = 1
+Stroke.Parent = MainFrame
 
 -- Close Button
 local CloseBtn = Instance.new("TextButton")
-CloseBtn.Size = UDim2.new(0, 25, 0, 25)
-CloseBtn.Position = UDim2.new(1, -25, 0, 0)
+CloseBtn.Size = UDim2.new(0, 30, 0, 30)
+CloseBtn.Position = UDim2.new(1, -30, 0, 0)
 CloseBtn.BackgroundTransparency = 1
 CloseBtn.Text = "X"
 CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 CloseBtn.Font = Enum.Font.GothamBold
-CloseBtn.TextSize = 14
+CloseBtn.TextSize = 16
 CloseBtn.Parent = MainFrame
 
 CloseBtn.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
 end)
 
--- Rainbow Title "CURRYV4" (Hardcoded Specific Colors)
-local titleText = "CURRYV4"
-local container = Instance.new("Frame")
-container.Size = UDim2.new(1, 0, 0, 50)
-container.Position = UDim2.new(0, 0, 0, 10)
-container.BackgroundTransparency = 1
-container.Parent = MainFrame
+-- Rainbow Title "CURRYV4"
+local titleContainer = Instance.new("Frame")
+titleContainer.Size = UDim2.new(0, 200, 0, 50)
+titleContainer.Position = UDim2.new(0, 20, 0, 10)
+titleContainer.BackgroundTransparency = 1
+titleContainer.Parent = MainFrame
 
--- Exact colors for each letter to match the image
-local letterColors = {
+local titleText = "CURRYV4"
+local colors = {
     Color3.fromRGB(255, 0, 0),       -- C (Red)
     Color3.fromRGB(255, 100, 0),     -- U (Orange)
     Color3.fromRGB(255, 255, 0),     -- R (Yellow)
@@ -76,70 +67,114 @@ local letterColors = {
 for i = 1, #titleText do
     local char = string.sub(titleText, i, i)
     local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(0, 40, 0, 50)
-    label.Position = UDim2.new(0, (i-1)*40 + 20, 0, 0)
+    label.Size = UDim2.new(0, 25, 0, 50)
+    label.Position = UDim2.new(0, (i-1)*25, 0, 0)
     label.BackgroundTransparency = 1
     label.Text = char
     label.Font = Enum.Font.GothamBold
-    label.TextSize = 35
-    label.TextStrokeTransparency = 0
-    label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    
-    -- Assign the specific hardcoded color
-    if letterColors[i] then
-        label.TextColor3 = letterColors[i]
-    else
-        label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    end
-    
-    label.Parent = container
+    label.TextSize = 24
+    label.TextColor3 = colors[i] or Color3.fromRGB(255, 255, 255)
+    label.Parent = titleContainer
 end
 
--- "CRASH" Button (Dark Style)
-local CrashBtn = Instance.new("TextButton")
-CrashBtn.Size = UDim2.new(0, 280, 0, 50)
-CrashBtn.Position = UDim2.new(0.5, -140, 0, 110)
-CrashBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- Dark gray
-CrashBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-CrashBtn.Text = "CRASH"
-CrashBtn.Font = Enum.Font.GothamBold
-CrashBtn.TextSize = 24
-CrashBtn.Parent = MainFrame
+-- Module Categories (Tabs)
+local categories = {
+    {name = "Combat", modules = {"AimAssist", "AutoClicker", "Reach", "SilentAim", "Sprint", "TriggerBot"}},
+    {name = "Blatant", modules = {"AntiFall", "Fly", "HighJump", "HitBoxes", "Invisible", "KillAura", "LongJump", "MouseTP", "Phase", "Speed", "Spider", "SpinBot", "TargetStrafe"}},
+    {name = "Render", modules = {"Arrows", "Chams", "ESP", "GamingChair", "Health", "NameTags", "PlayerModel", "Search", "Tracers", "Waypoints"}},
+    {name = "Utility", modules = {"AnimationPlayer", "AntiRagdoll", "AutoRejoin", "Blink", "ChatSpammer", "Disabler", "Panic", "Rejoin", "StaffDetector"}},
+    {name = "World", modules = {"Anti-AFK", "Freecam", "Gravity", "Parkour", "SafeWalk", "Xray"}}
+}
 
-local BtnCorner = Instance.new("UICorner")
-BtnCorner.CornerRadius = UDim.new(0, 8)
-BtnCorner.Parent = CrashBtn
+local currentTab = nil
+local tabButtons = {}
 
-local BtnStroke = Instance.new("UIStroke")
-BtnStroke.Color = Color3.fromRGB(50, 50, 50)
-BtnStroke.Thickness = 2
-BtnStroke.Parent = CrashBtn
+-- Create Tab System
+local tabContainer = Instance.new("Frame")
+tabContainer.Size = UDim2.new(0, 150, 1, -60)
+tabContainer.Position = UDim2.new(0, 10, 0, 60)
+tabContainer.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+tabContainer.Parent = MainFrame
 
--- Button Hover Effects
-CrashBtn.MouseEnter:Connect(function()
-    CrashBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    CrashBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    BtnStroke.Color = Color3.fromRGB(70, 70, 70)
-end)
+local tabCorner = Instance.new("UICorner")
+tabCorner.CornerRadius = UDim.new(0, 5)
+tabCorner.Parent = tabContainer
 
-CrashBtn.MouseLeave:Connect(function()
-    CrashBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    CrashBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-    BtnStroke.Color = Color3.fromRGB(50, 50, 50)
-end)
+-- Content Area
+local contentArea = Instance.new("ScrollingFrame")
+contentArea.Size = UDim2.new(1, -170, 1, -70)
+contentArea.Position = UDim2.new(0, 170, 0, 60)
+contentArea.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+contentArea.CanvasSize = UDim2.new(0, 0, 0, 0)
+contentArea.ScrollBarThickness = 8
+contentArea.ScrollBarImageColor3 = Color3.fromRGB(50, 50, 50)
+contentArea.Parent = MainFrame
 
--- Button Click Effect (Visual Simulation Only)
-CrashBtn.MouseButton1Click:Connect(function()
-    CrashBtn.Text = "FAILED"
-    CrashBtn.TextColor3 = Color3.fromRGB(255, 0, 0)
-    CrashBtn.BackgroundColor3 = Color3.fromRGB(50, 0, 0)
+local contentCorner = Instance.new("UICorner")
+contentCorner.CornerRadius = UDim.new(0, 5)
+contentCorner.Parent = contentArea
+
+local contentLayout = Instance.new("UIListLayout")
+contentLayout.Padding = UDim.new(0, 5)
+contentLayout.Parent = contentArea
+
+local function updateCanvasSize()
+    contentArea.CanvasSize = UDim2.new(0, 0, 0, contentLayout.AbsoluteContentSize.Y)
+end
+
+contentLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvasSize)
+
+-- Create Tab Buttons
+local function createTabButton(category, index)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 30)
+    btn.Position = UDim2.new(0, 0, 0, (index-1)*35 + 5)
+    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- Black/Dark Gray
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255) -- White Text
+    btn.Text = category.name
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 14
+    btn.Parent = tabContainer
+
+    btn.MouseButton1Click:Connect(function()
+        -- Clear content area
+        for _, child in pairs(contentArea:GetChildren()) do
+            if child:IsA("Frame") then
+                child:Destroy()
+            end
+        end
+        
+        -- Create module buttons for selected category
+        for i, moduleName in ipairs(category.modules) do
+            local moduleBtn = Instance.new("TextButton")
+            moduleBtn.Size = UDim2.new(1, -20, 0, 30)
+            moduleBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40) -- Black Button
+            moduleBtn.TextColor3 = Color3.fromRGB(255, 255, 255) -- White Text
+            moduleBtn.Text = moduleName
+            moduleBtn.Font = Enum.Font.GothamBold
+            moduleBtn.TextSize = 14
+            moduleBtn.Parent = contentArea
+            
+            moduleBtn.MouseButton1Click:Connect(function()
+                -- Toggle visual state only
+                if moduleBtn.BackgroundColor3 == Color3.fromRGB(40, 40, 40) then
+                    moduleBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+                else
+                    moduleBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+                end
+            end)
+        end
+    end)
     
-    task.wait(1)
-    
-    CrashBtn.Text = "CRASH"
-    CrashBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-    CrashBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    
-    -- Warning
-    print("Server Protected: Client-side scripts cannot crash the server.")
-end)
+    tabButtons[index] = btn
+end
+
+-- Initialize Tabs
+for i, category in ipairs(categories) do
+    createTabButton(category, i)
+end
+
+-- Open first tab by default
+if #categories > 0 then
+    tabButtons[1].MouseButton1Click:Invoke()
+end
