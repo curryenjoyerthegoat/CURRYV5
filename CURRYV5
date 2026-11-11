@@ -1,59 +1,26 @@
+-- CURRYV4 UI - FIXED VERSION
+-- Press Right Shift to Open/Close
+
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
-local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService)
+local UserInputService = game:GetService("UserInputService)
 
--- Cleanup existing GUI
-local existingGui = PlayerGui:FindFirstChild("CURRYV4")
+-- Cleanup
+local existingGui = PlayerGui:FindFirstChild("CURRYV4_Menu")
 if existingGui then existingGui:Destroy() end
-local existingToggle = PlayerGui:FindFirstChild("ToggleBtn")
-if existingToggle then existingToggle:Destroy() end
 
--- SCREENGUI FOR THE TOGGLE BUTTON (Always Visible)
-local ToggleScreenGui = Instance.new("ScreenGui")
-ToggleScreenGui.Name = "ToggleBtn"
-ToggleScreenGui.ResetOnSpawn = false
-ToggleScreenGui.Parent = PlayerGui
-
--- THE TOGGLE BUTTON (Icon)
-local ToggleButton = Instance.new("TextButton")
-ToggleButton.Size = UDim2.new(0, 50, 0, 50)
-ToggleButton.Position = UDim2.new(0, 10, 0, 10) -- Top Left Corner
-ToggleButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-ToggleButton.Text = "" -- No text, just an icon or color
-ToggleButton.Parent = ToggleScreenGui
-
-local ToggleCorner = Instance.new("UICorner")
-ToggleCorner.CornerRadius = UDim.new(0, 8)
-ToggleCorner.Parent = ToggleButton
-
-local ToggleStroke = Instance.new("UIStroke")
-ToggleStroke.Color = Color3.fromRGB(60, 60, 60)
-ToggleStroke.Thickness = 2
-ToggleStroke.Parent = ToggleButton
-
--- Add a simple icon or text to the toggle button so users know what it is
-local ToggleLabel = Instance.new("TextLabel")
-ToggleLabel.Size = UDim2.new(1, 0, 1, 0)
-ToggleLabel.BackgroundTransparency = 1
-ToggleLabel.Text = "MENU"
-ToggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-ToggleLabel.Font = Enum.Font.GothamBold
-ToggleLabel.TextSize = 14
-ToggleLabel.Parent = ToggleButton
-
--- MAIN MENU GUI (Hidden by default)
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "CURRYV4"
+ScreenGui.Name = "CURRYV4_Menu"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
 
+-- Main Frame (Hidden by default)
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 800, 0, 600)
 MainFrame.Position = UDim2.new(0.5, -400, 0.5, -300)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-MainFrame.Visible = false -- HIDDEN BY DEFAULT
+MainFrame.Visible = false -- STARTS HIDDEN
 MainFrame.Parent = ScreenGui
 
 local UICorner = Instance.new("UICorner")
@@ -65,7 +32,7 @@ Stroke.Color = Color3.fromRGB(30, 30, 30)
 Stroke.Thickness = 1
 Stroke.Parent = MainFrame
 
--- Close Button (Inside Menu)
+-- Close Button
 local CloseBtn = Instance.new("TextButton")
 CloseBtn.Size = UDim2.new(0, 30, 0, 30)
 CloseBtn.Position = UDim2.new(1, -30, 0, 0)
@@ -78,10 +45,9 @@ CloseBtn.Parent = MainFrame
 
 CloseBtn.MouseButton1Click:Connect(function()
     MainFrame.Visible = false
-    ToggleButton.Visible = true -- Show toggle button again
 end)
 
--- Rainbow Title "CURRYV4"
+-- Rainbow Title
 local titleContainer = Instance.new("Frame")
 titleContainer.Size = UDim2.new(0, 200, 0, 50)
 titleContainer.Position = UDim2.new(0, 20, 0, 10)
@@ -112,7 +78,7 @@ for i = 1, #titleText do
     label.Parent = titleContainer
 end
 
--- Module Categories
+-- Categories
 local categories = {
     {name = "Combat", modules = {"AimAssist", "AutoClicker", "Reach", "SilentAim", "Sprint", "TriggerBot"}},
     {name = "Blatant", modules = {"AntiFall", "Fly", "HighJump", "HitBoxes", "Invisible", "KillAura", "LongJump", "MouseTP", "Phase", "Speed", "Spider", "SpinBot", "TargetStrafe"}},
@@ -198,29 +164,19 @@ for i, category in ipairs(categories) do
     createTabButton(category, i)
 end
 
--- TOGGLE FUNCTION
+-- Toggle Logic
 local function toggleMenu()
-    if MainFrame.Visible then
-        MainFrame.Visible = false
-        ToggleButton.Visible = true -- Show the toggle button when menu is closed
-    else
-        MainFrame.Visible = true
-        ToggleButton.Visible = false -- Hide the toggle button when menu is open
-    end
+    MainFrame.Visible = not MainFrame.Visible
 end
 
--- CONNECT THE TOGGLE BUTTON
-ToggleButton.MouseButton1Click:Connect(function()
-    toggleMenu()
-end)
-
--- KEYBIND (Right Shift)
-local toggleKey = Enum.KeyCode.RightShift 
+-- Keybind Listener (SAFE VERSION)
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
-    if input.KeyCode == toggleKey then
+    if gameProcessed then return end -- Don't trigger if typing in chat
+    
+    -- Change this key if you want. RightShift is default.
+    if input.KeyCode == Enum.KeyCode.RightShift then
         toggleMenu()
     end
 end)
 
-print("CURRYV4 UI Loaded. Use the 'MENU' button or Right Shift to open.")
+print("CURRYV4 Loaded. Press Right Shift to open the menu.")
