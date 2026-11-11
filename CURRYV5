@@ -1,7 +1,6 @@
--- CURRYV4 V4 UI - AERO V4 STYLE
--- Drag the small "V4" button to move it. Tap it to open/close the menu.
+-- CURRYV4 V4 UI - FIXED FOR MOBILE
+-- Tap the "V4" button to open/close the menu.
 -- Modules toggle RED (enabled) or BLACK (disabled) visually only.
--- This matches the exact style from Aero V4 (wrealaero's UI).
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
@@ -13,21 +12,21 @@ for _, name in ipairs({"CURRYV4_V4", "CURRYV4_Toggle"}) do
     if obj then obj:Destroy() end
 end
 
--- Toggle Button (Small, Draggable)
+-- Toggle Button (Fixed for Mobile)
 local ToggleGui = Instance.new("ScreenGui")
 ToggleGui.Name = "CURRYV4_Toggle"
 ToggleGui.Parent = PlayerGui
 ToggleGui.IgnoreGuiInset = true
 
 local ToggleBtn = Instance.new("TextButton")
-ToggleBtn.Size = UDim2.new(0, 50, 0, 50)
+ToggleBtn.Size = UDim2.new(0, 60, 0, 60)
 ToggleBtn.Position = UDim2.new(0, 10, 0, 100)
 ToggleBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 ToggleBtn.Text = ""
 ToggleBtn.Parent = ToggleGui
 
 local toggleCorner = Instance.new("UICorner")
-toggleCorner.CornerRadius = UDim.new(0, 8)
+toggleCorner.CornerRadius = UDim.new(0, 10)
 toggleCorner.Parent = ToggleBtn
 
 local toggleStroke = Instance.new("UIStroke")
@@ -41,34 +40,8 @@ toggleLabel.BackgroundTransparency = 1
 toggleLabel.Text = "V4"
 toggleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 toggleLabel.Font = Enum.Font.GothamBold
-toggleLabel.TextSize = 16
+toggleLabel.TextSize = 20
 toggleLabel.Parent = ToggleBtn
-
--- Drag Logic
-local dragging = false
-ToggleBtn.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-    end
-end)
-
-ToggleBtn.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
-    end
-end)
-
-ToggleBtn.TouchDrag:Connect(function(input)
-    if dragging then
-        ToggleBtn.Position = UDim2.new(0, input.Position.X - 25, 0, input.Position.Y - 25)
-    end
-end)
-
-ToggleBtn.MouseDrag:Connect(function(input)
-    if dragging then
-        ToggleBtn.Position = UDim2.new(0, input.Position.X - 25, 0, input.Position.Y - 25)
-    end
-end)
 
 -- Main Menu (Hidden)
 local MenuGui = Instance.new("ScreenGui")
@@ -92,17 +65,15 @@ mainStroke.Color = Color3.fromRGB(40, 40, 40)
 mainStroke.Thickness = 1
 mainStroke.Parent = MainFrame
 
--- Toggle Logic
+-- FIXED Toggle Logic (Mobile Compatible)
 local function toggleMenu()
-    MainFrame.Visible = not MainFrame.Visible
-    ToggleBtn.Visible = not MainFrame.Visible
+    local isVisible = MainFrame.Visible
+    MainFrame.Visible = not isVisible
+    ToggleBtn.Visible = isVisible
 end
 
+-- Connect the button properly
 ToggleBtn.MouseButton1Click:Connect(function()
-    toggleMenu()
-end)
-
-ToggleBtn.TouchTap:Connect(function()
     toggleMenu()
 end)
 
@@ -122,7 +93,7 @@ CloseBtn.MouseButton1Click:Connect(function()
     ToggleBtn.Visible = true
 end)
 
--- Rainbow Title "CURRYV4" (Aero V4 Style)
+-- Rainbow Title "CURRYV4"
 local titleContainer = Instance.new("Frame")
 titleContainer.Size = UDim2.new(0, 200, 0, 50)
 titleContainer.Position = UDim2.new(0, 20, 0, 10)
@@ -152,7 +123,7 @@ for i = 1, #titleText do
     label.Parent = titleContainer
 end
 
--- Categories (Exact Aero V4 Layout)
+-- Categories
 local categories = {
     {name = "Combat", modules = {"AimAssist", "AutoClicker", "Reach", "SilentAim", "Sprint", "TriggerBot"}},
     {name = "Blatant", modules = {"AntiFall", "Fly", "HighJump", "HitBoxes", "Invisible", "KillAura", "LongJump", "MouseTP", "Phase", "Speed", "Spider", "SpinBot", "TargetStrafe"}},
@@ -214,7 +185,7 @@ local function createTabButton(category, index)
         for i, moduleName in ipairs(category.modules) do
             local moduleBtn = Instance.new("TextButton")
             moduleBtn.Size = UDim2.new(1, -20, 0, 35)
-            moduleBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40) -- Disabled (Black)
+            moduleBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             moduleBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
             moduleBtn.Text = moduleName
             moduleBtn.Font = Enum.Font.GothamBold
@@ -226,12 +197,11 @@ local function createTabButton(category, index)
             btnCorner.Parent = moduleBtn
             
             moduleBtn.MouseButton1Click:Connect(function()
-                -- Toggle visual state (RED = Enabled, BLACK = Disabled)
                 if moduleBtn.BackgroundColor3 == Color3.fromRGB(40, 40, 40) then
-                    moduleBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0) -- RED when enabled (like Aero V4)
+                    moduleBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
                     moduleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
                 else
-                    moduleBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40) -- BLACK when disabled
+                    moduleBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
                     moduleBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
                 end
             end)
@@ -243,4 +213,4 @@ for i, category in ipairs(categories) do
     createTabButton(category, i)
 end
 
-print("✅ CURRYV4 V4 UI (Aero V4 Style) Loaded. Tap the 'V4' button to open.")
+print("✅ CURRYV4 V4 UI Loaded. Tap the 'V4' button to open.")
