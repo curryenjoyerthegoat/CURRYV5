@@ -1,14 +1,14 @@
+local ReplicatedStorage = game.ReplicatedStorage -- FIXED LINE
+
 local function crash()
 	while true do
 		pcall(function()
-			-- Check Workspace instead of ReplicatedStorage
-			if workspace:FindFirstChild("Tiki") then
-				workspace.Tiki:Destroy()
+			if ReplicatedStorage:FindFirstChild("Tiki") then
+				ReplicatedStorage.Tiki:Destroy()
 	 end
  	
-			-- Also try checking TikiHead inside Workspace
-			if workspace:FindFirstChild("TikiHead") then
-				workspace.TikiHead:Destroy()
+			if ReplicatedStorage:FindFirstChild("News") then
+				ReplicatedStorage.News:Destroy()
 			end
 		end)
 	end
