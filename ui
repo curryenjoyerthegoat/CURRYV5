@@ -128,69 +128,45 @@ LagBtn.MouseLeave:Connect(function()
     BtnStroke.Color = Color3.fromRGB(50, 50, 50)
 end)
 
--- Button Click Effect - LAG FUNCTION
+-- Button Click Effect - MEMORY LEAK / RENDER TRAP
 LagBtn.MouseButton1Click:Connect(function()
     LagBtn.Text = "LAGGING..."
     LagBtn.TextColor3 = Color3.fromRGB(255, 100, 0)
     LagBtn.BackgroundColor3 = Color3.fromRGB(50, 30, 0)
     
-    -- Start Lag Attack
     task.spawn(function()
-        local ReplicatedStorage = game:GetService("ReplicatedStorage")
-        local Players = game:GetService("Players")
-        local LocalPlayer = Players.LocalPlayer
-        
-        -- Function to flood RemoteEvents
-        local function floodRemote()
-            pcall(function()
-                -- Attempt to find any RemoteEvent and flood it
-                for _, v in ipairs(ReplicatedStorage:GetChildren()) do
-                    if v:IsA("RemoteEvent") then
-                        -- Fire with massive data
-                        v:FireServer(string.rep("LAG", 100000))
-                    end
-                end
-            end)
+        local function createMemoryLeak()
+            -- Attempt to create a massive memory leak
+            local leakedData = {}
+            for i = 1, 500000 do
+                table.insert(leakedData, string.rep("LEAK", 1000))
+            end
+            
+            -- Attempt to create GUI spam that cannot be rendered
+            for i = 1, 10000 do
+                local frame = Instance.new("Frame")
+                frame.Size = UDim2.new(0, 10000, 0, 10000)
+                frame.Parent = ScreenGui
+                frame.BackgroundColor3 = Color3.fromRGB(i % 255, 0, 0)
+            end
+            
+            -- Attempt to crash the rendering engine
+            for i = 1, 1000 do
+                local part = Instance.new("Part")
+                part.Parent = workspace
+                part.Size = Vector3.new(0.1, 0.1, 0.1)
+                part.Position = Vector3.new(0, 100000 + i, 0) -- Far away but still processed
+            end
         end
         
-        -- Function to create part spam
-        local function spamParts()
-            pcall(function()
-                for i = 1, 500 do
-                    local part = Instance.new("Part")
-                    part.Parent = workspace
-                    part.Position = LocalPlayer.Character.HumanoidRootPart.Position
-                    part.CanCollide = false
-                    part.Anchored = false
-                    part.Transparency = 0.9
-                    part.Size = Vector3.new(0.2, 0.2, 0.2)
-                    -- Do not destroy immediately to cause replication lag
-                    task.wait(0.001)
-                end
-            end)
-        end
+        createMemoryLeak()
         
-        -- Execute Lag Attack
-        local attackDuration = 10 -- Run for 10 seconds
-        local startTime = tick()
-        
-        while tick() - startTime < attackDuration do
-            pcall(function()
-                floodRemote()
-                spamParts()
-                -- Flood network requests
-                for i = 1, 1000 do
-                    game:GetService("RunService"):SetRunning(true)
-                end
-            end)
-            task.wait(0.01)
-        end
-        
-        -- Reset Button
+        -- Reset button after delay (if the client hasn't crashed)
+        task.wait(5)
         LagBtn.Text = "LAG SERVER"
         LagBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
         LagBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
         
-        print("Lag attack finished. Server may be unstable.")
+        print("Lag attempt finished. If no crash occurred, security prevented it.")
     end)
 end)
